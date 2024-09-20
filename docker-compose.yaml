@@ -1,0 +1,40 @@
+name: django-devcontainer
+
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - 5432:5432
+    env_file:
+      - docker.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
+
+  migration:
+    build: .
+    command: migrate
+    env_file:
+      - docker.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    build: .
+    command: runserver 0.0.0.0:8080
+    ports:
+      - 8080:8080
+    env_file:
+      - docker.env
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully

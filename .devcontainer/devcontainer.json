@@ -1,0 +1,61 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-docker-compose
+{
+	// Path to Docker Compose file(s)
+	"dockerComposeFile": "../docker-compose.yaml",
+	// Which service inside dockerComposeFile to attach to 
+	"service": "app",
+	// Attach directory within the service container
+	"workspaceFolder": "/app",
+	// Environment variables inside the container
+	"containerEnv": {
+		// Support for Django testing https://code.visualstudio.com/docs/python/testing#_django-unit-tests
+		"MANAGE_PY_PATH": "./manage.py"
+	},
+
+	 // Features https://containers.dev/features
+	"features": {
+		// Installs git for your dev environment
+		"ghcr.io/devcontainers/features/git:1": {},
+		// Installs vim for git commit messages
+		"ghcr.io/jungaretti/features/vim:1": {},
+		// Sources optional .bashrc under ~/.config/devcontainer mount, e.g. prompt, completions
+		"ghcr.io/eliises/devcontainer-features/bash-profile:1": {
+			"command": "test -f /devcontainer/.bashrc && . /devcontainer/.bashrc"
+		}
+	},
+
+	// Docker mounts https://docs.docker.com/engine/storage/bind-mounts/
+	"mounts": [
+		// Docker socket to use Docker from inside Docker
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+		// SSH keys for git
+		"source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,ro,consistency=cached",
+		// Additional git configurations, e.g. global gitignore
+		"source=${localEnv:HOME}/.config/git,target=/root/.config/git,type=bind,ro,consistency=cached",
+		// Other optional container configurations
+		"source=${localEnv:HOME}/.config/devcontainer,target=/devcontainer,type=bind,ro,consistency=cached"
+	],
+
+	// VS Code customizations
+	"customizations": {
+		"vscode": {
+			// Settings from your workspace/project .vscode/settings.json
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python3",
+				"python.envFile": "${workspaceFolder}/docker.env",
+				"python.testing.unittestArgs": ["--no-input"],
+				"python.testing.unittestEnabled": true,
+				"python.analysis.typeCheckingMode": "off"
+			},
+			// Extension identifiers to install
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.debugpy",
+				"charliermarsh.ruff",
+				"batisteo.vscode-django"
+			]
+		}
+	}
+}
